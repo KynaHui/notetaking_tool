@@ -1,73 +1,76 @@
-# Real-Time Deepgram Transcription
+# Real-Time Transcription Scripts
 
-This script provides minimal, yet enhanced, near real-time microphone transcription using the Deepgram API. It captures audio from a microphone, sends it in chunks to Deepgram for transcription, and displays the results on the console.
+This repository contains two Python scripts for real-time audio transcription.
 
-## Features
+1.  **`transcript_deepgram.py`**: Uses the Deepgram cloud API for fast and accurate transcription.
+2.  **`transcript_local.py`**: Runs a local Whisper model, optimized for energy efficiency.
 
-*   **Near Real-Time Transcription**: Captures audio in chunks and transcribes it with low latency.
-*   **VAD (Voice Activity Detection)**: Skips silent chunks to save API calls and processing time.
-*   **Overlap Trimming**: Intelligently trims overlapping text between consecutive chunks to produce a clean, continuous transcript.
-*   **Duplicate Suppression**: Removes stutters and repeated phrases.
-*   **Resilient**: Includes robust error handling, graceful shutdown, and a fallback to raw HTTP requests if the Deepgram SDK fails.
-*   **Configurable**: Allows customization of the model, language, chunk size, VAD threshold, and more via command-line arguments.
-*   **File Logging**: Saves the full transcript to a timestamped text file.
-*   **Context Management**: Optionally bounds the internal context to manage memory usage over long sessions.
+---
 
-## Dependencies
+### 1. Deepgram Cloud Transcription (`transcript_deepgram.py`)
 
-You can install the required Python libraries using pip:
+This script streams microphone audio to Deepgram's API for near real-time transcription.
 
-```bash
-pip install deepgram-sdk sounddevice numpy requests
-```
+**Setup:**
 
-## Configuration
+1.  **Install dependencies:**
+    ```bash
+    pip install deepgram-sdk sounddevice numpy requests
+    ```
 
-Before running the script, you need to provide your Deepgram API key.
+2.  **Add API Key:** Create a file named `api_config.json` and add your key:
+    ```json
+    {
+      "deepgram_api_key": "YOUR_DEEPGRAM_API_KEY_HERE"
+    }
+    ```
 
-1.  Create a file named `api_config.json` in the same directory as the script.
-2.  Add your API key to this file in the following format:
+**Usage:**
 
-```json
-{
-  "deepgram_api_key": "YOUR_DEEPGRAM_API_KEY_HERE"
-}
-```
-
-## Usage
-
-To start transcribing, simply run the script:
-
+Run the script to start transcribing. Press `Ctrl+C` to stop.
 ```bash
 python transcript_deepgram.py
 ```
+*A transcript file will be saved automatically.*
 
-The script will start capturing audio from your default microphone and print the transcribed text to the console. Press `Ctrl+C` to stop the script and save the final transcript.
+---
 
-### Command-Line Arguments
+### 2. Local Whisper Transcription (`transcript_local.py`)
 
-You can customize the behavior of the script using various command-line arguments:
+This script uses `faster-whisper` to run transcription locally on your machine, with a focus on minimizing CPU and power usage.
 
-| Argument | Description | Default |
-| :--- | :--- | :--- |
-| `--config` | Path to the JSON config file. | `api_config.json` |
-| `--model` | Deepgram model to use (e.g., `nova-3`, `nova-3-meeting`). | `nova-3` |
-| `--language` | Language code for transcription. | `en` |
-| `--chunk-duration` | Duration of each audio chunk in seconds. | `10.0` |
-| `--overlap` | Fractional overlap between chunks (0.0 to 0.9). | `0.3` |
-| `--vad-threshold`| RMS threshold for speech detection. Lower is more sensitive. | `0.005` |
-| `--output` | Path to save the transcript file. | `transcript_{timestamp}.txt`|
-| `--device` | Specify the input audio device by index or name. | `None` (default device) |
-| `--no-sdk` | Force the script to use raw HTTP requests instead of the Deepgram SDK. | `False` |
+**Setup:**
 
-**Example Usage:**
-
-*   Use a more sensitive VAD and a 3-second chunk size:
+1.  **Install dependencies:**
     ```bash
-    python transcript_deepgram.py --chunk-duration 3 --vad-threshold 0.006
+    pip install faster-whisper sounddevice numpy psutil
     ```
 
-*   Limit the internal transcript history to 4000 characters to save memory:
-    ```bash
-    python transcript_deepgram.py --context-max-chars 4000
-    ```
+**Usage:**
+
+Run the script to start. The `base` model is used by default. Press `Ctrl+C` to stop.
+```bash
+python transcript_local.py
+```
+*A transcript file will be saved automatically.*
+
+---
+
+### Customization Examples
+
+You can modify the behavior of both scripts with command-line arguments.
+
+**Deepgram:**
+```bash
+# Use a 3-second chunk size and more sensitive voice detection
+python transcript_deepgram.py --chunk-duration 3 --vad-threshold 0.006
+```
+
+**Local Whisper:**
+```bash
+# Use the 'tiny' model for lowest power usage
+python transcript_local.py --model tiny
+
+# Use a larger chunk size and enable low-power sleep mode
+python transcript_local.py --chunk-duration 8 --low-power
+```
