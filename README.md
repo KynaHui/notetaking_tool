@@ -5,6 +5,14 @@ This repository contains two Python scripts for real-time audio transcription.
 1.  **`transcript_deepgram.py`**: Uses the Deepgram cloud API for fast and accurate transcription.
 2.  **`transcript_local.py`**: Runs a local Whisper model, optimized for energy efficiency.
 
+## Why using deepgram API?
+
+200 usd free usage, each hour is just very low (~0.26 per hour).
+
+## Why using local model?
+
+Do not want to configure the API at all
+
 ---
 
 ### 1. Deepgram Cloud Transcription (`transcript_deepgram.py`)
